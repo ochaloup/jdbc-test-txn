@@ -4,7 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Random;
+import java.util.concurrent.Callable;
 
 import io.narayana.test.byteman.FlowControl;
 import io.narayana.test.db.DBUtils;
@@ -23,37 +23,37 @@ import io.narayana.test.db.DBUtils;
  * 11. check result set is 0
  * 12. Log error
  */
-public class Thread1 implements Runnable {
+public class Thread1 implements Callable<Exception> {
 
-    private String name; 
+    private String name;
 
     public Thread1(String name) {
         this.name = name;
     }
 
-    public void run() {
-        Thread.currentThread().setName(name);
+    public Exception call() {
+        Thread.currentThread().setName(Thread1.class.getSimpleName() + "-" + name);
+
+        String nodeName = name + FlowControl.NODE1;
 
         Connection conn = DBUtils.getDBConnection();
         try {
             conn.setAutoCommit(false);
 
-            int random = new Random().nextInt(1_000_000) + 1;
+            int random = FlowControl.RANDOM.nextInt(1_000_000) + 1;
             PreparedStatement ps1Insert = conn.prepareStatement(DBUtils.INSERT_STATEMENT_T1);
-            ps1Insert.setString(1, "node1");
+            ps1Insert.setString(1, nodeName);
             ps1Insert.setInt(2, random);
             ps1Insert.executeUpdate();
 
             conn.commit();
             ps1Insert.close();
 
-            // ---- STAND POINT -----
-            FlowControl.point1();
 
             conn.setAutoCommit(false);
 
             PreparedStatement ps1Query = conn.prepareStatement(String.format(DBUtils.SELECT_WHERE, DBUtils.TABLE1_NAME));
-            ps1Query.setString(1, "node1");
+            ps1Query.setString(1, nodeName);
             ps1Query.setInt(2, random);
             ResultSet result = ps1Query.executeQuery();
 
@@ -68,14 +68,14 @@ public class Thread1 implements Runnable {
                     + " : number of rows for random " + random + " has to be 1 but it's " + rowReturned);
 
             PreparedStatement ps2Insert = conn.prepareStatement(DBUtils.INSERT_STATEMENT_T2);
-            ps2Insert.setInt(1, 42); // TODO: ?
+            ps2Insert.setInt(1, 1);
             ps2Insert.executeUpdate();
 
             conn.commit();
 
 
             // ---- STAND POINT -----
-            FlowControl.point2();
+            FlowControl.thread1WaitingThread2();
 
 
             conn.setAutoCommit(false);
@@ -89,9 +89,13 @@ public class Thread1 implements Runnable {
                 rowReturned++;
             }
             // != 0 - is not empty
-            if(rowReturned != 0) throw new IllegalStateException(Thread.currentThread().getName() 
+            if(rowReturned != 1) {
+                System.err.printf("[ERROR] inserted random value %s for '%s' but there is no such record in DB, "
+                        + "rows returned %s%n", random, nodeName, rowReturned);
+                return new IllegalStateException(Thread.currentThread().getName()
                     + " : number of rows for random " + random + " has to be 0, but it's " + rowReturned);
-
+            }
+            return null;
         } catch (SQLException e) {
             if(conn != null) {
                 try {

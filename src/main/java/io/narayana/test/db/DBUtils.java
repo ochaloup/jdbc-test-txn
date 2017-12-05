@@ -15,6 +15,7 @@ public class DBUtils {
     public static String TABLE2_NAME = "TABLE2";
 
     public static String INSERT_STATEMENT_T1 = String.format("INSERT INTO %s (node_name, random) values (?, ?)", TABLE1_NAME);
+    public static String UPDATE_STATEMENT_T1 = String.format("UPDATE %s SET random = ? WHERE node_name = ?", TABLE1_NAME);
     public static String INSERT_STATEMENT_T2 = String.format("INSERT INTO %s (value) values (?)", TABLE2_NAME);
     public static String SELECT_ALL = "SELECT * FROM %s" ;
     public static String SELECT_WHERE = "SELECT * FROM %s WHERE node_name = ? AND random = ?" ;

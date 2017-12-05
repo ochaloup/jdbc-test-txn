@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Random;
 
+import io.narayana.test.byteman.FlowControl;
 import io.narayana.test.db.DBUtils;
 
 /**
@@ -21,14 +22,16 @@ import io.narayana.test.db.DBUtils;
  */
 public class Thread3 implements Runnable {
 
-    private String name; 
+    private String name;
 
     public Thread3(String name) {
         this.name = name;
     }
 
     public void run() {
-        Thread.currentThread().setName(name);
+        Thread.currentThread().setName(Thread3.class.getSimpleName() + "-" + name);
+
+        String nodeName = name + FlowControl.NODE2;
 
         Connection conn = DBUtils.getDBConnection();
         try {
@@ -36,22 +39,22 @@ public class Thread3 implements Runnable {
 
             int random = new Random().nextInt(1_000_000) + 1;
             PreparedStatement ps1Insert = conn.prepareStatement(DBUtils.INSERT_STATEMENT_T1);
-            ps1Insert.setString(1, "node2");
+            ps1Insert.setString(1, nodeName);
             ps1Insert.setInt(2, random);
             ps1Insert.executeUpdate();
 
             conn.commit();
 
-            long timeoutMs = 2000 + new Random().nextInt(8000);
+            long timeoutMs = 1000 + FlowControl.RANDOM.nextInt(2000);
             long startedAt = System.currentTimeMillis();
-            System.out.printf("Sleeping for %s ms%n", timeoutMs);
-            while(System.currentTimeMillis() < startedAt + timeoutMs) Thread.yield();
+            System.out.printf(">>%s> while sleeping for %s ms%n", Thread.currentThread().getName(), timeoutMs);
+            while(System.currentTimeMillis() < startedAt + timeoutMs);
 
 
             conn.setAutoCommit(false);
 
             PreparedStatement psQuery = conn.prepareStatement(String.format(DBUtils.SELECT_WHERE, DBUtils.TABLE1_NAME));
-            psQuery.setString(1, "node2");
+            psQuery.setString(1, nodeName);
             psQuery.setInt(2, random);
             ResultSet result = psQuery.executeQuery();
 
@@ -65,7 +68,7 @@ public class Thread3 implements Runnable {
                     + " : number of rows for random " + random + " has to be 1");
 
             PreparedStatement psInsert = conn.prepareStatement(DBUtils.INSERT_STATEMENT_T2);
-            psInsert.setInt(1, 42);
+            psInsert.setInt(1, 3);
             psInsert.executeUpdate();
 
             conn.commit();

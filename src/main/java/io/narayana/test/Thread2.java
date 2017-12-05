@@ -3,34 +3,39 @@ package io.narayana.test;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.Random;
 
+import io.narayana.test.byteman.FlowControl;
 import io.narayana.test.db.DBUtils;
 
 /**
  * 1. begin TX
- * 2. Insert (node1, random2)
+ * 2. Update (node1, random2)
  * 3. Commit TX
  */
 public class Thread2 implements Runnable {
 
-    private String name; 
+    private String name;
 
     public Thread2(String name) {
         this.name = name;
     }
 
     public void run() {
-        Thread.currentThread().setName(name);
+        Thread.currentThread().setName(Thread2.class.getSimpleName() + "-" + name);
+
+        String nodeName = name + FlowControl.NODE1;
+
+        // ---- STAND POINT -----
+        FlowControl.thread2WaitingThread1();
 
         Connection conn = DBUtils.getDBConnection();
         try {
             conn.setAutoCommit(false);
 
-            int random = new Random().nextInt(1_000_000) + 1;
-            PreparedStatement ps1Insert = conn.prepareStatement(DBUtils.INSERT_STATEMENT_T1);
-            ps1Insert.setString(1, "node1");
-            ps1Insert.setInt(2, random);
+            int random = FlowControl.RANDOM.nextInt(1_000_000) + 1;
+            PreparedStatement ps1Insert = conn.prepareStatement(DBUtils.UPDATE_STATEMENT_T1);
+            ps1Insert.setInt(1, random); // update - set
+            ps1Insert.setString(2, nodeName); // where condition
             ps1Insert.executeUpdate();
 
             conn.commit();

@@ -16,7 +16,10 @@
     <version.transaction.api>1.0.0.Final</version.transaction.api>
     <version.narayana>5.7.1.Final</version.narayana>
     <version.jboss.logging>3.1.4.GA</version.jboss.logging>
+    <version.byteman>3.0.9</version.byteman>
 
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
@@ -51,6 +54,12 @@
         <artifactId>junit</artifactId>
         <version>${version.junit}</version>
         <scope>test</scope>
+      </dependency>
+      <dependency>
+          <groupId>org.jboss.byteman</groupId>
+          <artifactId>byteman-bmunit</artifactId>
+          <version>${version.byteman}</version>
+          <scope>test</scope>
       </dependency>
   </dependencies>
 </project>

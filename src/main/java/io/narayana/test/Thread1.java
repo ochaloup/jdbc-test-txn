@@ -10,18 +10,20 @@ import io.narayana.test.byteman.FlowControl;
 import io.narayana.test.db.DBUtils;
 
 /**
- * 1. begin TX
- * 2. Insert (node1, random1)
- * 3. Commit TX
- * 4. Begin TX
- * 5. Select from new table where random = 1 and node = 1
- * 6. check result set is 1
- * 7. insert to table 2
- * 8. commit TX
- * 9. Begin TX
- * 10. Select from new table where random = 1 and node = 1
- * 11. check result set is 0
- * 12. Log error
+ * <ol>
+ *  <li> <!-- 1 --> begin TX</li>
+ *  <li> <!-- 2 --> Insert (node1, random1)</li>
+ *  <li> <!-- 3 --> Commit TX</li>
+ *  <li> <!-- 4 --> Begin TX</li>
+ *  <li> <!-- 5 --> Select from new table where random = 1 and node = 1</li>
+ *  <li> <!-- 6 --> check result set is 1</li>
+ *  <li> <!-- 7 --> insert to table 2</li>
+ *  <li> <!-- 8 --> commit TX</li>
+ *  <li> <!-- 9 --> Begin TX</li>
+ *  <li> <!-- 10 --> Select from new table where random = 1 and node = 1</li>
+ *  <li> <!-- 11 --> check result set is 0</li>
+ *  <li> <!-- 12 --> Log error</li>
+ * </ol>
  */
 public class Thread1 implements Callable<Exception> {
 

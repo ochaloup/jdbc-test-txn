@@ -10,15 +10,17 @@ import io.narayana.test.byteman.FlowControl;
 import io.narayana.test.db.DBUtils;
 
 /**
- * 1. begin TX
- * 2. Insert (node2, random3)
- * 3. Commit TX
- * 4. While loop for some period
- * 5. Begin TX
- * 6. Select from new table where random = 3 and node = 2
- * 7. check result set is 1
- * 8. insert to table 2
- * 9. commit TX
+ * <ol>
+ *  <li> <!-- 1 --> begin TX</li>
+ *  <li> <!-- 2 --> Insert (node2, random3)</li>
+ *  <li> <!-- 3 --> Commit TX</li>
+ *  <li> <!-- 4 --> While loop for some period</li>
+ *  <li> <!-- 5 --> Begin TX</li>
+ *  <li> <!-- 6 --> Select from new table where random = 3 and node = 2</li>
+ *  <li> <!-- 7 --> check result set is 1</li>
+ *  <li> <!-- 8 --> insert to table 2</li>
+ *  <li> <!-- 9 --> commit TX</li>
+ * </ol>
  */
 public class Thread3 implements Runnable {
 

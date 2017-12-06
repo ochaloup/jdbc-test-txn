@@ -8,9 +8,11 @@ import io.narayana.test.byteman.FlowControl;
 import io.narayana.test.db.DBUtils;
 
 /**
- * 1. begin TX
- * 2. Update (node1, random2)
- * 3. Commit TX
+ * <ol>
+ *  <li> <!-- 1 --> begin TX</li>
+ *  <li> <!-- 2 --> Update (node1, random2)</li>
+ *  <li> <!-- 3 --> Commit TX</li>
+ * </ol>
  */
 public class Thread2 implements Runnable {
 

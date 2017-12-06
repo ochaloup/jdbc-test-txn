@@ -6,6 +6,14 @@ docker build --tag=postgresql-jdbc-test:latest .
 docker run -p 5432:5432 -d --rm postgresql-jdbc-test
 ```
 
+== Connect to DB
+
+```
+username: crashrec
+password: crashrec
+url: jdbc:postgresql://localhost:5432/crashrec
+```
+
 == SQLs
 
 To select all tables in database

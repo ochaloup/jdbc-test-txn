@@ -19,6 +19,27 @@ url: jdbc:postgresql://localhost:5432/crashrec
 To select all tables in database
 
 ```sql
-SELECT table_schema,table_name FROM information_schema.tables ORDER BY table_schema,table_name;
+SELECT *  FROM information_schema.tables WHERE table_type = 'BASE TABLE' AND table_schema = 'public' ORDER BY table_type, table_name;
 ```
 
+== Network from other container
+
+See discussion on the internet - e.g. https://forums.docker.com/t/how-to-reach-a-container-from-another-container-without-ip-of-dockernat/21083/4
+
+In general a network is needed to be created and then each container attached to that network when started.
+The container is named somehow and that's a "DNS name" that other container can reach it. E.g. container named `foo` is able to contact
+the second container at the hostname `bar`.
+
+```bash
+docker network create mynet
+
+docker run --name foo --net mynet img
+
+docker run --name bar --net mynet img
+```
+
+An example for this postgresql image could be
+
+```bash
+docker run -p 5432:5432 -d --rm --name postgresql --net mynet postgresql-jdbc-test
+```

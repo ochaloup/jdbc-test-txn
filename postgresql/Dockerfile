@@ -5,6 +5,7 @@ FROM centos/postgresql-94-centos7
 ENV POSTGRESQL_DATABASE crashrec
 ENV POSTGRESQL_USER crashrec
 ENV POSTGRESQL_PASSWORD crashrec
+ENV POSTGRESQL_MAX_PREPARED_TRANSACTIONS 50
 
 # * Red Hat OpenShift command does not have any way to declare
 #   sql script to run after DB starts. Probably could be done

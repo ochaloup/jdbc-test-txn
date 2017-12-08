@@ -43,3 +43,11 @@ An example for this postgresql image could be
 ```bash
 docker run -p 5432:5432 -d --rm --name postgresql --net mynet postgresql-jdbc-test
 ```
+
+== RedHat centos psotgres container
+
+It does not have way to define  startup scripts. You can start it manually as
+
+```
+docker run -p 5432:5432 -e POSTGRESQL_DATABASE=crashrec -e POSTGRESQL_USER=crashrec -e POSTGRESQL_PASSWORD=crashrec centos/postgresql-94-centos7
+```

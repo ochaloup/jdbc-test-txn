@@ -1,5 +1,5 @@
 
-ALTER SYSTEM SET max_prepared_transactions = 50;
+-- ALTER SYSTEM SET max_prepared_transactions = 50;
 
 CREATE TABLE TABLE1 (
     id SERIAL PRIMARY KEY,

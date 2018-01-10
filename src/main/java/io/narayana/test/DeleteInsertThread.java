@@ -9,38 +9,21 @@ import java.util.concurrent.Callable;
 import io.narayana.test.byteman.FlowControl;
 import io.narayana.test.db.DBUtils;
 
-/**
- * <ol>
- *  <li> <!-- 1 --> begin TX</li>
- *  <li> <!-- 2 --> Insert (node1, random1)</li>
- *  <li> <!-- 3 --> Commit TX</li>
- *  <li> <!-- 4 --> Begin TX</li>
- *  <li> <!-- 5 --> Select from new table where random = 1 and node = 1</li>
- *  <li> <!-- 6 --> check result set is 1</li>
- *  <li> <!-- 7 --> insert to table 2</li>
- *  <li> <!-- 8 --> commit TX</li>
- *  <li> <!-- 9 --> Begin TX</li>
- *  <li> <!-- 10 --> Select from new table where random = 1 and node = 1</li>
- *  <li> <!-- 11 --> check result set is 0</li>
- *  <li> <!-- 12 --> Log error</li>
- * </ol>
- */
-public class Thread1 implements Callable<Exception> {
+public class DeleteInsertThread implements Callable<Exception> {
 
     private String name;
 
-    public Thread1(String name) {
+    public DeleteInsertThread(String name) {
         this.name = name;
     }
 
     public Exception call() {
-        Thread.currentThread().setName(Thread1.class.getSimpleName() + "-" + name);
-
-        String nodeName = name + FlowControl.NODE1;
+        Thread.currentThread().setName(DeleteInsertThread.class.getSimpleName() + "-" + name);
 
         Connection conn = DBUtils.getDBConnection();
+        conn.setAutoCommit(false);
+
         try {
-            conn.setAutoCommit(false);
 
             int random = FlowControl.RANDOM.nextInt(1_000_000) + 1;
             PreparedStatement ps1Insert = conn.prepareStatement(DBUtils.INSERT_STATEMENT_T1);
@@ -110,7 +93,7 @@ public class Thread1 implements Callable<Exception> {
             try {
                 conn.close();
             } catch (SQLException e1) {
-                System.err.printf("Can't close connection at %s%n", Thread1.class.getName());
+                System.err.printf("Can't close connection at %s%n", DeleteInsertThread.class.getName());
                 e1.printStackTrace();
             }
             throw new RuntimeException(e);

@@ -63,7 +63,7 @@ public class Thread3 implements Runnable {
             int rowReturned = 0;
             while(result.next()) {
                 System.out.printf(">>%s> %s, %s%n", Thread.currentThread().getName(),
-                        result.getString(2), result.getInt(3));
+                        result.getString(1), result.getInt(2));
                 rowReturned++;
             }
             if(rowReturned != 1) throw new IllegalStateException(Thread.currentThread().getName()

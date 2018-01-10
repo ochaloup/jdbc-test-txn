@@ -1,6 +1,4 @@
 
--- ALTER SYSTEM SET max_prepared_transactions = 50;
-
 CREATE TABLE TABLE1 (
     id SERIAL PRIMARY KEY,
     NODE_NAME VARCHAR(100),
@@ -11,4 +9,6 @@ CREATE TABLE TABLE2 (
     id SERIAL PRIMARY KEY,
     VALUE INTEGER
 );
+
+ALTER SYSTEM SET max_prepared_transactions = 50;
 

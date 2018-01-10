@@ -51,3 +51,22 @@ It does not have way to define  startup scripts. You can start it manually as
 ```
 docker run -p 5432:5432 -e POSTGRESQL_DATABASE=crashrec -e POSTGRESQL_USER=crashrec -e POSTGRESQL_PASSWORD=crashrec centos/postgresql-94-centos7
 ```
+
+== PSQL
+
+to connect: `PGPASSWORD=crashrec psql -h localhost -p 5432 --user crashrec --dbname crashrec`
+
+create database manually
+
+```
+sudo -u postgres createuser <username>;
+alter user <username> with encrypted password '<password>';
+CREATE DATABASE databasename;
+GRANT ALL PRIVILEGES ON DATABASE databasename TO patrick;
+```
+
+or psql
+
+```
+createdb databasename -U patrick
+```

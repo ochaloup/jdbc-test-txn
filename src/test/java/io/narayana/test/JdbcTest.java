@@ -1,5 +1,7 @@
 package io.narayana.test;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -13,10 +15,13 @@ import org.jboss.byteman.contrib.bmunit.BMRule;
 import org.jboss.byteman.contrib.bmunit.BMRules;
 import org.jboss.byteman.contrib.bmunit.BMUnitRunner;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
+
+import io.narayana.test.db.DBUtils;
 
 @RunWith(BMUnitRunner.class)
 public class JdbcTest {
@@ -25,6 +30,23 @@ public class JdbcTest {
 
     @Rule
     public TestName method = new TestName();
+
+    @BeforeClass
+    public static void setUp() {
+        try(Connection conn = DBUtils.getDBConnection()) {
+            conn.createStatement().executeUpdate(DBUtils.CREATE_TABLE1);
+        } catch (SQLException sqle) {
+            if(sqle.getSQLState().equals("42P07")) return;
+            throw new RuntimeException(sqle);
+        }
+        try(Connection conn = DBUtils.getDBConnection()) {
+            conn.createStatement().executeUpdate(DBUtils.CREATE_TABLE2);
+        } catch (SQLException sqle) {
+            if(sqle.getSQLState().equals("42P07")) return;
+            throw new RuntimeException(sqle);
+        }
+
+    }
 
     @Test
     @BMRules(rules = {

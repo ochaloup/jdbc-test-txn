@@ -1,3 +1,9 @@
 = JDBC interleaving transaction testing
 
 Small test for jdbc transactions when interleaved.
+
+On running the mvn test
+
+```
+mvn test -Ddb=test -Duser=test -Dpassword=test -Dtest=JdbcTest#bytemanOrdering
+```

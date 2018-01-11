@@ -1,7 +1,5 @@
 package io.narayana.test;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -9,7 +7,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 
 import org.jboss.byteman.contrib.bmunit.BMRule;
 import org.jboss.byteman.contrib.bmunit.BMRules;
@@ -21,8 +18,6 @@ import org.junit.Test;
 import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 
-import io.narayana.test.db.DBUtils;
-
 @RunWith(BMUnitRunner.class)
 public class JdbcTest {
     private static final String THREAD1_WORK_DONE = "Thread1-work-done";
@@ -33,19 +28,7 @@ public class JdbcTest {
 
     @BeforeClass
     public static void setUp() {
-        try(Connection conn = DBUtils.getDBConnection()) {
-            conn.createStatement().executeUpdate(DBUtils.CREATE_TABLE1);
-        } catch (SQLException sqle) {
-            if(sqle.getSQLState().equals("42P07")) return;
-            throw new RuntimeException(sqle);
-        }
-        try(Connection conn = DBUtils.getDBConnection()) {
-            conn.createStatement().executeUpdate(DBUtils.CREATE_TABLE2);
-        } catch (SQLException sqle) {
-            if(sqle.getSQLState().equals("42P07")) return;
-            throw new RuntimeException(sqle);
-        }
-
+        TestUtils.createTables();
     }
 
     @Test
@@ -87,7 +70,7 @@ public class JdbcTest {
         futures.add(es.submit(new Thread3(method.getMethodName())));
 
         Exception e = fe.get();
-        waitToEnd(futures, es);
+        TestUtils.waitToEnd(futures, es);
 
         Assert.assertEquals("The thread ordering should give IllegalStateException here",
                 IllegalStateException.class, e.getClass());
@@ -116,7 +99,7 @@ public class JdbcTest {
         futures.add(es.submit(new Thread2(method.getMethodName())));
         futures.add(es.submit(new Thread3(method.getMethodName())));
 
-        waitToEnd(futures, es);
+        TestUtils.waitToEnd(futures, es);
     }
 
     @Test
@@ -128,32 +111,19 @@ public class JdbcTest {
         futures.add(es.submit(new Thread2(method.getMethodName())));
         futures.add(es.submit(new Thread1(method.getMethodName())));
 
-        waitToEnd(futures, es);
+        TestUtils.waitToEnd(futures, es);
     }
-    
+
     @Test
     public void whatEverOrder3() throws InterruptedException {
         Set<Future<?>> futures = new HashSet<>();
-        
+
         ExecutorService es = Executors.newFixedThreadPool(3);
         futures.add(es.submit(new Thread3(method.getMethodName())));
         futures.add(es.submit(new Thread1(method.getMethodName())));
         Thread.sleep(100);
         futures.add(es.submit(new Thread2(method.getMethodName())));
-        
-        waitToEnd(futures, es);
-    }
 
-    private void waitToEnd(Set<Future<?>> futures, ExecutorService es) {
-        try {
-            // waiting for all threads will be finished
-            for(Future<?> f: futures) {
-                f.get();
-            }
-            es.shutdown();
-            es.awaitTermination(10, TimeUnit.SECONDS);
-        } catch (Exception e) {
-            throw new RuntimeException("Waiting on service " + es + " failed", e);
-        }
+        TestUtils.waitToEnd(futures, es);
     }
 }
